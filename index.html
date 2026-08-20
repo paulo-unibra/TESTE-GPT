@@ -3,94 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Uma página experimental criada em colaboração com o GPT.">
-  <title>TESTE-GPT — Ideias que ganham forma</title>
+  <meta name="description" content="Teste de acuidade visual online, simples e orientativo.">
+  <title>Olhar — Teste de visão</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="noise" aria-hidden="true"></div>
-  <header class="nav">
-    <a class="brand" href="#inicio" aria-label="TESTE-GPT — início">
-      <span class="brand-mark">T</span>
-      <span>TESTE-GPT</span>
-    </a>
-    <nav aria-label="Navegação principal">
-      <a href="#sobre">Sobre</a>
-      <a href="#experimentos">Experimentos</a>
-      <a class="nav-cta" href="https://github.com/paulo-unibra/TESTE-GPT">Ver código</a>
-    </nav>
+  <header>
+    <a class="brand" href="#"><span class="logo">O</span><span>OLHAR</span></a>
+    <span class="badge">Teste orientativo</span>
   </header>
 
   <main>
-    <section class="hero" id="inicio">
-      <div class="hero-copy reveal">
-        <p class="eyebrow"><span></span> Experimento #001</p>
-        <h1>Ideias simples.<br><em>Resultados vivos.</em></h1>
-        <p class="lead">Este espaço começou como um repositório vazio e virou uma experiência digital — criada, versionada e publicada em colaboração com inteligência artificial.</p>
-        <div class="actions">
-          <a class="button primary" href="#experimentos">Explorar página <span>↘</span></a>
-          <a class="button ghost" href="https://github.com/paulo-unibra/TESTE-GPT">Abrir GitHub</a>
-        </div>
-      </div>
-
-      <div class="hero-visual reveal" aria-label="Visualização abstrata de colaboração">
-        <div class="orbit orbit-one"></div>
-        <div class="orbit orbit-two"></div>
-        <div class="core">
-          <span class="core-label">HUMANO</span>
-          <strong>+</strong>
-          <span class="core-label">IA</span>
-        </div>
-        <span class="float-tag tag-one">código</span>
-        <span class="float-tag tag-two">design</span>
-        <span class="float-tag tag-three">ideia</span>
-      </div>
-    </section>
-
-    <section class="manifesto" id="sobre">
-      <p class="section-number">01 / SOBRE</p>
+    <section class="intro">
       <div>
-        <h2>Um pequeno laboratório<br>para grandes possibilidades.</h2>
-        <p>Não é apenas uma página. É uma prova de que uma conversa pode se transformar em algo real, acessível e pronto para evoluir.</p>
+        <p class="eyebrow">ACUIDADE VISUAL</p>
+        <h1>Como está<br>a sua <em>visão?</em></h1>
+        <p class="lead">Faça uma verificação rápida de cada olho. Leva cerca de 2 minutos e funciona melhor em uma tela de computador.</p>
+      </div>
+      <div class="setup-card">
+        <span class="step">ANTES DE COMEÇAR</span>
+        <ol>
+          <li><b>Afaste-se 3 metros</b> da tela.</li>
+          <li>Mantenha seus óculos ou lentes habituais.</li>
+          <li>Cubra um olho sem pressioná-lo.</li>
+          <li>Escolha abaixo a letra que aparece.</li>
+        </ol>
+        <button class="primary" id="start-btn">Começar o teste <span>→</span></button>
       </div>
     </section>
 
-    <section class="cards" id="experimentos">
-      <article class="card card-featured">
-        <span class="card-index">01</span>
+    <section class="test-area hidden" id="test-area" aria-live="polite">
+      <div class="test-top">
         <div>
-          <p class="card-kicker">AGORA</p>
-          <h3>Primeira versão publicada</h3>
-          <p>Uma landing page responsiva, construída do zero e entregue em commits organizados.</p>
+          <p class="eyebrow">TESTE EM ANDAMENTO</p>
+          <h2 id="eye-title">Olho direito</h2>
         </div>
-        <span class="card-arrow">↗</span>
+        <div class="progress-copy"><span id="progress-label">1 de 16</span></div>
+      </div>
+      <div class="progress"><span id="progress-bar"></span></div>
+
+      <div class="chart">
+        <span class="distance-mark">3 m</span>
+        <div class="optotype" id="optotype">E</div>
+        <p>Qual letra você vê?</p>
+      </div>
+
+      <div class="choices" id="choices" aria-label="Escolha a letra exibida"></div>
+      <button class="skip" id="cant-see">Não consigo identificar</button>
+    </section>
+
+    <section class="info-grid" id="info">
+      <article>
+        <span>01</span>
+        <h3>Teste os dois olhos</h3>
+        <p>Diferenças entre um olho e outro podem passar despercebidas no dia a dia.</p>
       </article>
-      <article class="card">
-        <span class="card-index">02</span>
-        <div>
-          <p class="card-kicker">PRÓXIMO</p>
-          <h3>Novas experiências</h3>
-          <p>Este repositório está pronto para receber novos componentes, ideias e testes.</p>
-        </div>
-        <span class="card-arrow">＋</span>
+      <article>
+        <span>02</span>
+        <h3>Observe os sinais</h3>
+        <p>Visão embaçada, dor de cabeça e esforço para focar merecem atenção.</p>
       </article>
-      <article class="card metric-card">
-        <span class="card-index">STATUS</span>
-        <div class="metric">
-          <strong id="commit-counter">04</strong>
-          <span>commits iniciais</span>
-        </div>
-        <span class="status"><i></i> online</span>
+      <article class="warning">
+        <span>IMPORTANTE</span>
+        <h3>Não é um diagnóstico</h3>
+        <p>Este teste é apenas uma triagem informal e não substitui consulta com oftalmologista.</p>
       </article>
     </section>
   </main>
 
+  <dialog id="result-dialog">
+    <div class="result-icon">✓</div>
+    <p class="eyebrow">TESTE CONCLUÍDO</p>
+    <h2>Seu resultado</h2>
+    <div class="scores">
+      <div><span>Olho direito</span><strong id="right-score">—</strong></div>
+      <div><span>Olho esquerdo</span><strong id="left-score">—</strong></div>
+    </div>
+    <p class="result-message" id="result-message"></p>
+    <p class="disclaimer">Resultado orientativo. Procure um oftalmologista para uma avaliação completa, especialmente se percebeu dificuldade.</p>
+    <button class="primary" id="restart-btn">Refazer teste</button>
+  </dialog>
+
   <footer>
-    <p>Feito por <strong>Paulo + GPT</strong></p>
-    <p id="year"></p>
+    <p>Teste visual experimental</p>
+    <p>Cuide dos seus olhos.</p>
   </footer>
   <script src="script.js"></script>
 </body>
