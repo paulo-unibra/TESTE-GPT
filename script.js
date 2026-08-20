@@ -1,5 +1,5 @@
 const letters = ["E","F","P","T","O","Z","L","D","C","H","N","K","R","V","S"];
-const sizes = [150,120,94,74,58,45,35,27];
+const sizes = [130,104,82,64,50,39,30,23];
 const totalPerEye = sizes.length;
 let eye = "right";
 let round = 0;
