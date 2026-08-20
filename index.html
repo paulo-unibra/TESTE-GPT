@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Uma página experimental criada em colaboração com o GPT.">
+  <title>TESTE-GPT — Ideias que ganham forma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav">
+    <a class="brand" href="#inicio" aria-label="TESTE-GPT — início">
+      <span class="brand-mark">T</span>
+      <span>TESTE-GPT</span>
+    </a>
+    <nav aria-label="Navegação principal">
+      <a href="#sobre">Sobre</a>
+      <a href="#experimentos">Experimentos</a>
+      <a class="nav-cta" href="https://github.com/paulo-unibra/TESTE-GPT">Ver código</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span></span> Experimento #001</p>
+        <h1>Ideias simples.<br><em>Resultados vivos.</em></h1>
+        <p class="lead">Este espaço começou como um repositório vazio e virou uma experiência digital — criada, versionada e publicada em colaboração com inteligência artificial.</p>
+        <div class="actions">
+          <a class="button primary" href="#experimentos">Explorar página <span>↘</span></a>
+          <a class="button ghost" href="https://github.com/paulo-unibra/TESTE-GPT">Abrir GitHub</a>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" aria-label="Visualização abstrata de colaboração">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="core">
+          <span class="core-label">HUMANO</span>
+          <strong>+</strong>
+          <span class="core-label">IA</span>
+        </div>
+        <span class="float-tag tag-one">código</span>
+        <span class="float-tag tag-two">design</span>
+        <span class="float-tag tag-three">ideia</span>
+      </div>
+    </section>
+
+    <section class="manifesto" id="sobre">
+      <p class="section-number">01 / SOBRE</p>
+      <div>
+        <h2>Um pequeno laboratório<br>para grandes possibilidades.</h2>
+        <p>Não é apenas uma página. É uma prova de que uma conversa pode se transformar em algo real, acessível e pronto para evoluir.</p>
+      </div>
+    </section>
+
+    <section class="cards" id="experimentos">
+      <article class="card card-featured">
+        <span class="card-index">01</span>
+        <div>
+          <p class="card-kicker">AGORA</p>
+          <h3>Primeira versão publicada</h3>
+          <p>Uma landing page responsiva, construída do zero e entregue em commits organizados.</p>
+        </div>
+        <span class="card-arrow">↗</span>
+      </article>
+      <article class="card">
+        <span class="card-index">02</span>
+        <div>
+          <p class="card-kicker">PRÓXIMO</p>
+          <h3>Novas experiências</h3>
+          <p>Este repositório está pronto para receber novos componentes, ideias e testes.</p>
+        </div>
+        <span class="card-arrow">＋</span>
+      </article>
+      <article class="card metric-card">
+        <span class="card-index">STATUS</span>
+        <div class="metric">
+          <strong id="commit-counter">04</strong>
+          <span>commits iniciais</span>
+        </div>
+        <span class="status"><i></i> online</span>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Feito por <strong>Paulo + GPT</strong></p>
+    <p id="year"></p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
