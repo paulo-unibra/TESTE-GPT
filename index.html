@@ -3,94 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Teste de acuidade visual online, simples e orientativo.">
-  <title>Olhar — Teste de visão</title>
+  <meta name="theme-color" content="#07131f">
+  <meta name="description" content="Reconstrução 3D interativa do navio de Alexandria descrito em Atos 27.">
+  <title>Atos 27 — Navio de Alexandria em 3D</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <a class="brand" href="#"><span class="logo">O</span><span>OLHAR</span></a>
-    <span class="badge">Teste orientativo</span>
-  </header>
+  <main id="app">
+    <div id="scene" aria-label="Modelo tridimensional interativo do navio de Atos 27"></div>
 
-  <main>
-    <section class="intro">
-      <div>
-        <p class="eyebrow">ACUIDADE VISUAL</p>
-        <h1>Como está<br>a sua <em>visão?</em></h1>
-        <p class="lead">Faça uma verificação rápida de cada olho. Leva cerca de 2 minutos e funciona melhor em uma tela de computador.</p>
-      </div>
-      <div class="setup-card">
-        <span class="step">ANTES DE COMEÇAR</span>
-        <ol>
-          <li><b>Afaste-se 3 metros</b> da tela.</li>
-          <li>Mantenha seus óculos ou lentes habituais.</li>
-          <li>Cubra um olho sem pressioná-lo.</li>
-          <li>Escolha abaixo a letra que aparece.</li>
-        </ol>
-        <button class="primary" id="start-btn">Começar o teste <span>→</span></button>
-      </div>
-    </section>
+    <div class="vignette" aria-hidden="true"></div>
 
-    <section class="test-area hidden" id="test-area" aria-live="polite">
-      <div class="test-top">
+    <header class="topbar">
+      <div class="brand">
+        <span class="chapter">ATOS 27</span>
         <div>
-          <p class="eyebrow">TESTE EM ANDAMENTO</p>
-          <h2 id="eye-title">Olho direito</h2>
+          <h1>Navio de Alexandria</h1>
+          <p>Reconstrução 3D interativa</p>
         </div>
-        <div class="progress-copy"><span id="progress-label">1 de 16</span></div>
       </div>
-      <div class="progress"><span id="progress-bar"></span></div>
+      <button id="reset-camera" class="ghost-btn" type="button" aria-label="Redefinir câmera">↺ <span>Redefinir vista</span></button>
+    </header>
 
-      <div class="chart">
-        <span class="distance-mark">3 m</span>
-        <div class="optotype" id="optotype">E</div>
-        <p>Qual letra você vê?</p>
-      </div>
-
-      <div class="choices" id="choices" aria-label="Escolha a letra exibida"></div>
-      <button class="skip" id="cant-see">Não consigo identificar</button>
+    <section class="intro-card" id="intro-card">
+      <span class="kicker">EXPLORE O NAVIO</span>
+      <h2>As partes citadas em<br><em>Atos 27</em>, em 3D.</h2>
+      <p>Arraste para girar, use a roda do mouse para aproximar e clique nas partes do navio para descobrir o nome e o versículo correspondente.</p>
+      <button id="start-explore" class="primary-btn" type="button">Começar a explorar <span>→</span></button>
     </section>
 
-    <section class="info-grid" id="info">
-      <article>
-        <span>01</span>
-        <h3>Teste os dois olhos</h3>
-        <p>Diferenças entre um olho e outro podem passar despercebidas no dia a dia.</p>
-      </article>
-      <article>
-        <span>02</span>
-        <h3>Observe os sinais</h3>
-        <p>Visão embaçada, dor de cabeça e esforço para focar merecem atenção.</p>
-      </article>
-      <article class="warning">
-        <span>IMPORTANTE</span>
-        <h3>Não é um diagnóstico</h3>
-        <p>Este teste é apenas uma triagem informal e não substitui consulta com oftalmologista.</p>
-      </article>
-    </section>
+    <aside class="info-panel" id="info-panel" aria-live="polite">
+      <button class="close-panel" id="close-panel" aria-label="Fechar informações">×</button>
+      <div class="part-number" id="part-number">01</div>
+      <span class="part-type" id="part-type">PARTE DO NAVIO</span>
+      <h2 id="part-name">Casco do navio</h2>
+      <p class="verse" id="part-verse">Atos 27:18, 22, 41</p>
+      <p class="description" id="part-description">A estrutura principal da embarcação. Durante a tempestade, o navio foi aliviado e, ao final, encalhou e se rompeu com a força das ondas.</p>
+      <blockquote id="part-quote">“...não se perderá a vida de nenhum de vós, mas somente o navio.”</blockquote>
+    </aside>
+
+    <nav class="parts-dock" id="parts-dock" aria-label="Partes do navio">
+      <button data-part="hull"><span>01</span> Casco</button>
+      <button data-part="bow"><span>02</span> Proa</button>
+      <button data-part="stern"><span>03</span> Popa</button>
+      <button data-part="mainSail"><span>04</span> Vela maior</button>
+      <button data-part="sails"><span>05</span> Velas</button>
+      <button data-part="anchors"><span>06</span> Âncoras</button>
+      <button data-part="rudder"><span>07</span> Leme</button>
+      <button data-part="boat"><span>08</span> Batel</button>
+      <button data-part="rigging"><span>09</span> Cordas</button>
+      <button data-part="sounding"><span>10</span> Prumo</button>
+      <button data-part="cargo"><span>11</span> Trigo</button>
+      <button data-part="planks"><span>12</span> Tábuas</button>
+    </nav>
+
+    <div class="controls-hint">
+      <span><b>Arrastar</b> girar</span>
+      <i></i>
+      <span><b>Scroll</b> zoom</span>
+      <i></i>
+      <span><b>Clicar</b> identificar</span>
+    </div>
+
+    <div class="historical-note">Modelo interpretativo • baseado nos elementos explicitamente mencionados em Atos 27</div>
   </main>
 
-  <dialog id="result-dialog">
-    <div class="result-icon">✓</div>
-    <p class="eyebrow">TESTE CONCLUÍDO</p>
-    <h2>Seu resultado</h2>
-    <div class="scores">
-      <div><span>Olho direito</span><strong id="right-score">—</strong></div>
-      <div><span>Olho esquerdo</span><strong id="left-score">—</strong></div>
-    </div>
-    <p class="result-message" id="result-message"></p>
-    <p class="disclaimer">Resultado orientativo. Procure um oftalmologista para uma avaliação completa, especialmente se percebeu dificuldade.</p>
-    <button class="primary" id="restart-btn">Refazer teste</button>
-  </dialog>
-
-  <footer>
-    <p>Teste visual experimental</p>
-    <p>Cuide dos seus olhos.</p>
-  </footer>
-  <script src="script.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
