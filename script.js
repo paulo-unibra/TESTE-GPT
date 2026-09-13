@@ -118,7 +118,8 @@ const parts = {
 
 const wood = new THREE.MeshStandardMaterial({ color: 0x6f3f22, roughness: 0.72, metalness: 0.03 });
 const darkWood = new THREE.MeshStandardMaterial({ color: 0x3d2115, roughness: 0.8 });
-const deckMat = new THREE.MeshStandardMaterial({ color: 0x9a6337, roughness: 0.86 });
+const deckMat = new THREE.MeshStandardMaterial({ color: 0x9a6337, roughness: 0.86, side: THREE.DoubleSide });
+const boatInteriorMat = new THREE.MeshStandardMaterial({ color: 0x8b5a32, roughness: 0.9, side: THREE.DoubleSide });
 const sailMat = new THREE.MeshStandardMaterial({ color: 0xe9d8ae, roughness: 0.82, side: THREE.DoubleSide });
 const sailDarkMat = new THREE.MeshStandardMaterial({ color: 0xc5ad7e, roughness: 0.86, side: THREE.DoubleSide });
 const ropeMat = new THREE.MeshStandardMaterial({ color: 0x8f7145, roughness: 1 });
@@ -180,53 +181,81 @@ function createHullGeometry(scale = 1) {
 
 function createDeckGeometry() {
   const sections = [[-10,.48],[-8.7,1.55],[-6,2.3],[0,2.82],[6,2.25],[8.8,1.2],[10,.4]];
-  const vertices=[]; const indices=[];
+  const vertices=[];
+  const indices=[];
   sections.forEach(([x,w])=>vertices.push(x,.68,-w,x,.68,w));
-  for(let i=0;i<sections.length-1;i++){const a=i*2,b=a+1,c=a+2,d=a+3;indices.push(a,c,b,c,d,b)}
+  for(let i=0;i<sections.length-1;i++){
+    const a=i*2,b=a+1,c=a+2,d=a+3;
+    indices.push(a,c,b,c,d,b);
+  }
   const geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geo.setIndex(indices);geo.computeVertexNormals();return geo;
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
 }
 
 const hullMesh = tag(new THREE.Mesh(createHullGeometry(), wood), 'hull');
 ship.add(hullMesh);
+
 const deck = tag(new THREE.Mesh(createDeckGeometry(), deckMat), 'hull');
+deck.position.y = 0.025;
 deck.receiveShadow = true;
 ship.add(deck);
 
+// Linhas de tábuas sobre o convés para que o piso continue legível em vista superior.
 for(let x=-8;x<=8;x+=1.15){
-  const plank=new THREE.Mesh(new THREE.BoxGeometry(.055,.045,4.1),darkWood);
-  plank.position.set(x,.735,0); plank.rotation.y=.02*Math.sin(x); ship.add(tag(plank,'hull'));
+  const plankLine=new THREE.Mesh(new THREE.BoxGeometry(.055,.045,4.1),darkWood);
+  plankLine.position.set(x,.755,0);
+  plankLine.rotation.y=.02*Math.sin(x);
+  ship.add(tag(plankLine,'hull'));
 }
 
 const gunwaleGeo = new THREE.BoxGeometry(17.5,.23,.18);
 for(const z of [-2.35,2.35]){
-  const rail=new THREE.Mesh(gunwaleGeo,darkWood);rail.position.set(0,1.0,z);rail.scale.z=z>0?1:1;ship.add(tag(rail,'hull'));
+  const rail=new THREE.Mesh(gunwaleGeo,darkWood);
+  rail.position.set(0,1.0,z);
+  ship.add(tag(rail,'hull'));
 }
 
 const bowHit = new THREE.Mesh(new THREE.BoxGeometry(4.2,3.8,5.2), invisibleMat.clone());
-bowHit.position.set(8.8,-.2,0); ship.add(tag(bowHit,'bow'));
+bowHit.position.set(8.8,-.2,0);
+ship.add(tag(bowHit,'bow'));
 const prow = new THREE.Mesh(new THREE.ConeGeometry(.28,2.6,8), bronzeMat);
-prow.rotation.z=-Math.PI/2;prow.position.set(10.9,1.3,0);ship.add(tag(prow,'bow'));
+prow.rotation.z=-Math.PI/2;
+prow.position.set(10.9,1.3,0);
+ship.add(tag(prow,'bow'));
 
 const sternHit = new THREE.Mesh(new THREE.BoxGeometry(4.5,4,5.3), invisibleMat.clone());
-sternHit.position.set(-8.7,-.2,0); ship.add(tag(sternHit,'stern'));
+sternHit.position.set(-8.7,-.2,0);
+ship.add(tag(sternHit,'stern'));
 const sternDeck = new THREE.Mesh(new THREE.BoxGeometry(4.2,.45,4.3), darkWood);
-sternDeck.position.set(-7.4,1.35,0);ship.add(tag(sternDeck,'stern'));
+sternDeck.position.set(-7.4,1.35,0);
+ship.add(tag(sternDeck,'stern'));
 for(const z of [-1.7,1.7]){
-  const post=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,1.7,10),darkWood);post.position.set(-8.7,2.1,z);ship.add(tag(post,'stern'));
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,1.7,10),darkWood);
+  post.position.set(-8.7,2.1,z);
+  ship.add(tag(post,'stern'));
 }
 
 function cylinderBetween(a,b,r,material){
-  const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b),mid=start.clone().add(end).multiplyScalar(.5);
+  const start=new THREE.Vector3(...a);
+  const end=new THREE.Vector3(...b);
+  const mid=start.clone().add(end).multiplyScalar(.5);
   const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r,r,start.distanceTo(end),10),material);
-  mesh.position.copy(mid);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),end.clone().sub(start).normalize());return mesh;
+  mesh.position.copy(mid);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),end.clone().sub(start).normalize());
+  return mesh;
 }
 
 function addMast(x,height,key='frame'){
   const mast=new THREE.Mesh(new THREE.CylinderGeometry(.18,.24,height,12),darkWood);
-  mast.position.set(x,.85+height/2,0);ship.add(tag(mast,key));
+  mast.position.set(x,.85+height/2,0);
+  ship.add(tag(mast,key));
   const yard=new THREE.Mesh(new THREE.CylinderGeometry(.1,.12,6.7,10),darkWood);
-  yard.rotation.x=Math.PI/2;yard.position.set(x,.85+height*.72,0);ship.add(tag(yard,key));
+  yard.rotation.x=Math.PI/2;
+  yard.position.set(x,.85+height*.72,0);
+  ship.add(tag(yard,key));
   return {mast,yard};
 }
 addMast(1.7,9.2);
@@ -234,90 +263,197 @@ addMast(-4.3,7.1);
 
 function sailShape(width,height,topScale=1,bottomScale=.78){
   const s=new THREE.Shape();
-  s.moveTo(-width*topScale/2,height/2);s.lineTo(width*topScale/2,height/2);s.lineTo(width*bottomScale/2,-height/2);s.lineTo(-width*bottomScale/2,-height/2);s.closePath();
-  const g=new THREE.ShapeGeometry(s,8);g.rotateY(Math.PI/2);return g;
+  s.moveTo(-width*topScale/2,height/2);
+  s.lineTo(width*topScale/2,height/2);
+  s.lineTo(width*bottomScale/2,-height/2);
+  s.lineTo(-width*bottomScale/2,-height/2);
+  s.closePath();
+  const g=new THREE.ShapeGeometry(s,8);
+  g.rotateY(Math.PI/2);
+  return g;
 }
+
 const mainSail=new THREE.Mesh(sailShape(6.1,4.8,1,.72),sailMat);
-mainSail.position.set(1.72,6.15,0);ship.add(tag(mainSail,'mainSail'));
+mainSail.position.set(1.72,6.15,0);
+ship.add(tag(mainSail,'mainSail'));
 const smallSail=new THREE.Mesh(sailShape(5.1,3.6,1,.7),sailDarkMat);
-smallSail.position.set(-4.28,5.05,0);ship.add(tag(smallSail,'sails'));
+smallSail.position.set(-4.28,5.05,0);
+ship.add(tag(smallSail,'sails'));
 
 const rigLines=[
   [[1.7,10,0],[10.5,1.3,0]],[[1.7,10,0],[-9.2,1.5,0]],
   [[-4.3,8,0],[-9.2,1.5,0]],[[1.7,8.2,-3],[1.7,8.2,3]],
   [[-4.3,6.3,-2.6],[-4.3,6.3,2.6]]
 ];
-for(const [a,b] of rigLines){ship.add(tag(cylinderBetween(a,b,.035,ropeMat),'rigging'))}
+for(const [a,b] of rigLines){
+  ship.add(tag(cylinderBetween(a,b,.035,ropeMat),'rigging'));
+}
 for(const x of [-5.2,-1.7,2.0,5.3]){
   const ring=new THREE.Mesh(new THREE.TorusGeometry(2.55,.055,8,50),ropeMat);
-  ring.rotation.y=Math.PI/2;ring.scale.y=.72;ring.position.set(x,-.42,0);ship.add(tag(ring,'rigging'));
+  ring.rotation.y=Math.PI/2;
+  ring.scale.y=.72;
+  ring.position.set(x,-.42,0);
+  ship.add(tag(ring,'rigging'));
 }
 
 function createAnchor(x,z,flip=1){
   const g=new THREE.Group();
-  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.075,.1,1.65,9),bronzeMat);g.add(shaft);
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(.22,.055,8,20),bronzeMat);ring.position.y=.9;g.add(ring);
-  const stock=new THREE.Mesh(new THREE.BoxGeometry(.95,.11,.11),bronzeMat);stock.position.y=.5;g.add(stock);
-  const arm1=new THREE.Mesh(new THREE.BoxGeometry(.75,.12,.12),bronzeMat);arm1.position.set(-.23,-.78,0);arm1.rotation.z=-.55;g.add(arm1);
-  const arm2=arm1.clone();arm2.position.x=.23;arm2.rotation.z=.55;g.add(arm2);
-  g.position.set(x,-.4,z);g.rotation.x=flip*.18;g.rotation.z=.15;ship.add(tag(g,'anchors'));
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.075,.1,1.65,9),bronzeMat);
+  g.add(shaft);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.22,.055,8,20),bronzeMat);
+  ring.position.y=.9;
+  g.add(ring);
+  const stock=new THREE.Mesh(new THREE.BoxGeometry(.95,.11,.11),bronzeMat);
+  stock.position.y=.5;
+  g.add(stock);
+  const arm1=new THREE.Mesh(new THREE.BoxGeometry(.75,.12,.12),bronzeMat);
+  arm1.position.set(-.23,-.78,0);
+  arm1.rotation.z=-.55;
+  g.add(arm1);
+  const arm2=arm1.clone();
+  arm2.position.x=.23;
+  arm2.rotation.z=.55;
+  g.add(arm2);
+  g.position.set(x,-.4,z);
+  g.rotation.x=flip*.18;
+  g.rotation.z=.15;
+  ship.add(tag(g,'anchors'));
 }
-createAnchor(-7.0,-2.45,-1);createAnchor(-8.15,-2.25,-1);createAnchor(-7.0,2.45,1);createAnchor(-8.15,2.25,1);
+createAnchor(-7.0,-2.45,-1);
+createAnchor(-8.15,-2.25,-1);
+createAnchor(-7.0,2.45,1);
+createAnchor(-8.15,2.25,1);
 
 function createRudder(z,sign){
   const g=new THREE.Group();
-  const shaft=cylinderBetween([0,2.0,0],[-1.2,-2.4,0],.1,darkWood);g.add(shaft);
-  const blade=new THREE.Mesh(new THREE.BoxGeometry(.78,1.65,.18),darkWood);blade.position.set(-1.35,-2.65,0);blade.rotation.z=-.25;g.add(blade);
-  const tie=new THREE.Mesh(new THREE.TorusGeometry(.22,.04,7,24),ropeMat);tie.rotation.x=Math.PI/2;tie.position.set(-.1,1.25,0);g.add(tie);
-  g.position.set(-8.25,.4,z);g.rotation.x=sign*.1;ship.add(tag(g,'rudder'));
+  const shaft=cylinderBetween([0,2.0,0],[-1.2,-2.4,0],.1,darkWood);
+  g.add(shaft);
+  const blade=new THREE.Mesh(new THREE.BoxGeometry(.78,1.65,.18),darkWood);
+  blade.position.set(-1.35,-2.65,0);
+  blade.rotation.z=-.25;
+  g.add(blade);
+  const tie=new THREE.Mesh(new THREE.TorusGeometry(.22,.04,7,24),ropeMat);
+  tie.rotation.x=Math.PI/2;
+  tie.position.set(-.1,1.25,0);
+  g.add(tie);
+  g.position.set(-8.25,.4,z);
+  g.rotation.x=sign*.1;
+  ship.add(tag(g,'rudder'));
 }
-createRudder(-2.1,-1);createRudder(2.1,1);
+createRudder(-2.1,-1);
+createRudder(2.1,1);
 
 const boat=new THREE.Group();
-const boatHull=new THREE.Mesh(createHullGeometry(.24),new THREE.MeshStandardMaterial({color:0x7f4b2d,roughness:.82}));
-boatHull.scale.y=.7;boat.add(boatHull);
+const boatHullMat=new THREE.MeshStandardMaterial({
+  color:0x7f4b2d,
+  roughness:.82,
+  side:THREE.DoubleSide
+});
+const boatHull=new THREE.Mesh(createHullGeometry(.24),boatHullMat);
+boatHull.scale.y=.7;
+boat.add(boatHull);
+
+// Piso interno do batel. Antes o casco era aberto, por isso parecia vazio visto de cima.
+const boatFloor=new THREE.Mesh(new THREE.BoxGeometry(3.75,.1,1.05),boatInteriorMat);
+boatFloor.position.set(0,-.1,0);
+boat.add(boatFloor);
+
+// Tábuas sutis sobre o piso do batel para dar leitura de madeira em vista superior.
+for(const x of [-1.35,-.9,-.45,0,.45,.9,1.35]){
+  const floorPlank=new THREE.Mesh(new THREE.BoxGeometry(.38,.035,1.0),deckMat);
+  floorPlank.position.set(x,-.035,0);
+  boat.add(floorPlank);
+}
+
 const seatGeo=new THREE.BoxGeometry(.12,.12,1.1);
-for(const x of [-1.2,0,1.2]){const seat=new THREE.Mesh(seatGeo,darkWood);seat.position.set(x,.25,0);boat.add(seat)}
-boat.scale.set(.85,.85,.85);boat.position.set(-1.1,2.0,1.05);boat.rotation.y=-.05;ship.add(tag(boat,'boat'));
+for(const x of [-1.2,0,1.2]){
+  const seat=new THREE.Mesh(seatGeo,darkWood);
+  seat.position.set(x,.25,0);
+  boat.add(seat);
+}
+boat.scale.set(.85,.85,.85);
+boat.position.set(-1.1,2.0,1.05);
+boat.rotation.y=-.05;
+ship.add(tag(boat,'boat'));
 
 for(let i=0;i<12;i++){
   const sack=new THREE.Mesh(new THREE.SphereGeometry(.48,14,10),wheatMat);
-  sack.scale.set(1.1,.7,.78);sack.position.set(-5.1+(i%4)*.72,1.05+Math.floor(i/8)*.55,-.75+Math.floor((i%8)/4)*1.45);ship.add(tag(sack,'cargo'));
+  sack.scale.set(1.1,.7,.78);
+  sack.position.set(-5.1+(i%4)*.72,1.05+Math.floor(i/8)*.55,-.75+Math.floor((i%8)/4)*1.45);
+  ship.add(tag(sack,'cargo'));
 }
 
 for(let i=0;i<6;i++){
   const board=new THREE.Mesh(new THREE.BoxGeometry(3.2,.12,.32),deckMat);
-  board.position.set(4.4,1.15+i*.13,-1.45);board.rotation.y=.08*(i-2);ship.add(tag(board,'planks'));
+  board.position.set(4.4,1.15+i*.13,-1.45);
+  board.rotation.y=.08*(i-2);
+  ship.add(tag(board,'planks'));
 }
 
 const soundingLine=cylinderBetween([6.5,.9,2.62],[6.5,-3.4,2.62],.025,ropeMat);
 ship.add(tag(soundingLine,'sounding'));
 const soundingWeight=new THREE.Mesh(new THREE.ConeGeometry(.18,.52,10),bronzeMat);
-soundingWeight.position.set(6.5,-3.62,2.62);ship.add(tag(soundingWeight,'sounding'));
+soundingWeight.position.set(6.5,-3.62,2.62);
+ship.add(tag(soundingWeight,'sounding'));
 
 const frameDetail=new THREE.Mesh(new THREE.BoxGeometry(3.9,.18,.22),darkWood);
-frameDetail.position.set(-1.15,2.1,-2.45);frameDetail.rotation.y=.2;ship.add(tag(frameDetail,'frame'));
+frameDetail.position.set(-1.15,2.1,-2.45);
+frameDetail.rotation.y=.2;
+ship.add(tag(frameDetail,'frame'));
 
 for(const x of [3.5,6.0]){
-  const coil=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,28),ropeMat);coil.rotation.x=Math.PI/2;coil.position.set(x,1.02,1.25);ship.add(tag(coil,'rigging'));
+  const coil=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,28),ropeMat);
+  coil.rotation.x=Math.PI/2;
+  coil.position.set(x,1.02,1.25);
+  ship.add(tag(coil,'rigging'));
 }
 
-const seaGeo=new THREE.PlaneGeometry(150,150,80,80);seaGeo.rotateX(-Math.PI/2);
-const seaMat=new THREE.MeshPhysicalMaterial({color:0x0b3850,roughness:.28,metalness:.12,transparent:true,opacity:.93,clearcoat:.3,side:THREE.DoubleSide});
-const sea=new THREE.Mesh(seaGeo,seaMat);sea.position.y=0;sea.receiveShadow=true;scene.add(sea);
-const seaPos=seaGeo.attributes.position;const seaBase=[];
-for(let i=0;i<seaPos.count;i++)seaBase.push([seaPos.getX(i),seaPos.getZ(i)]);
+const seaGeo=new THREE.PlaneGeometry(150,150,80,80);
+seaGeo.rotateX(-Math.PI/2);
+const seaMat=new THREE.MeshPhysicalMaterial({
+  color:0x0b3850,
+  roughness:.28,
+  metalness:.12,
+  transparent:true,
+  opacity:.93,
+  clearcoat:.3,
+  side:THREE.DoubleSide
+});
+const sea=new THREE.Mesh(seaGeo,seaMat);
+sea.position.y=0;
+sea.receiveShadow=true;
+scene.add(sea);
+const seaPos=seaGeo.attributes.position;
+const seaBase=[];
+for(let i=0;i<seaPos.count;i++){
+  seaBase.push([seaPos.getX(i),seaPos.getZ(i)]);
+}
 
-const horizon=new THREE.Mesh(new THREE.CircleGeometry(24,80),new THREE.MeshBasicMaterial({color:0x285270,transparent:true,opacity:.12,depthWrite:false}));
-horizon.position.set(-35,14,-55);scene.add(horizon);
+const horizon=new THREE.Mesh(
+  new THREE.CircleGeometry(24,80),
+  new THREE.MeshBasicMaterial({color:0x285270,transparent:true,opacity:.12,depthWrite:false})
+);
+horizon.position.set(-35,14,-55);
+scene.add(horizon);
 
 const starPos=[];
 for(let i=0;i<420;i++){
-  const r=65+Math.random()*55;const theta=Math.random()*Math.PI*2;const phi=Math.random()*Math.PI*.42;
-  starPos.push(Math.cos(theta)*Math.cos(phi)*r,14+Math.sin(phi)*r,Math.sin(theta)*Math.cos(phi)*r);
+  const r=65+Math.random()*55;
+  const theta=Math.random()*Math.PI*2;
+  const phi=Math.random()*Math.PI*.42;
+  starPos.push(
+    Math.cos(theta)*Math.cos(phi)*r,
+    14+Math.sin(phi)*r,
+    Math.sin(theta)*Math.cos(phi)*r
+  );
 }
-const starGeo=new THREE.BufferGeometry();starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));
-const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xcbe1ef,size:.12,transparent:true,opacity:.55}));scene.add(stars);
+const starGeo=new THREE.BufferGeometry();
+starGeo.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));
+const stars=new THREE.Points(
+  starGeo,
+  new THREE.PointsMaterial({color:0xcbe1ef,size:.12,transparent:true,opacity:.55})
+);
+scene.add(stars);
 
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
@@ -331,7 +467,10 @@ function meshHighlight(key,on){
     if(!obj.isMesh || obj.userData.partKey!==key || obj.material===invisibleMat) return;
     const mats=Array.isArray(obj.material)?obj.material:[obj.material];
     mats.forEach(mat=>{
-      if('emissive' in mat){mat.emissive.setHex(on?0x5a3b12:0x000000);mat.emissiveIntensity=on?.45:0;}
+      if('emissive' in mat){
+        mat.emissive.setHex(on?0x5a3b12:0x000000);
+        mat.emissiveIntensity=on?.45:0;
+      }
     });
   });
 }
@@ -349,20 +488,27 @@ renderer.domElement.addEventListener('pointermove',e=>{
   if(e.pointerType === 'touch') return;
   const key=getPartFromEvent(e);
   if(key!==hovered){
-    if(hovered && hovered!==selectedKey)meshHighlight(hovered,false);
+    if(hovered && hovered!==selectedKey) meshHighlight(hovered,false);
     hovered=key;
-    if(hovered && hovered!==selectedKey)meshHighlight(hovered,true);
+    if(hovered && hovered!==selectedKey) meshHighlight(hovered,true);
     renderer.domElement.style.cursor=key?'pointer':'grab';
   }
 });
-renderer.domElement.addEventListener('pointerleave',()=>{if(hovered&&hovered!==selectedKey)meshHighlight(hovered,false);hovered=null});
-renderer.domElement.addEventListener('click',e=>{const key=getPartFromEvent(e);if(key)selectPart(key,false)});
+renderer.domElement.addEventListener('pointerleave',()=>{
+  if(hovered&&hovered!==selectedKey) meshHighlight(hovered,false);
+  hovered=null;
+});
+renderer.domElement.addEventListener('click',e=>{
+  const key=getPartFromEvent(e);
+  if(key) selectPart(key,false);
+});
 
 const panel=document.querySelector('#info-panel');
 function selectPart(key,focus=true){
-  if(!parts[key])return;
-  if(selectedKey)meshHighlight(selectedKey,false);
-  selectedKey=key;meshHighlight(key,true);
+  if(!parts[key]) return;
+  if(selectedKey) meshHighlight(selectedKey,false);
+  selectedKey=key;
+  meshHighlight(key,true);
   const p=parts[key];
   document.querySelector('#part-number').textContent=p.number;
   document.querySelector('#part-type').textContent=p.type;
@@ -371,7 +517,9 @@ function selectPart(key,focus=true){
   document.querySelector('#part-description').textContent=p.description;
   document.querySelector('#part-quote').textContent=p.quote;
   panel.classList.add('open');
-  document.querySelectorAll('.parts-dock button').forEach(btn=>btn.classList.toggle('active',btn.dataset.part===key));
+  document.querySelectorAll('.parts-dock button').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.part===key);
+  });
   if(focus){
     const mobileBoost = isMobile ? 1.22 : 1;
     cameraGoal=new THREE.Vector3(...p.camera).multiplyScalar(mobileBoost);
@@ -379,24 +527,41 @@ function selectPart(key,focus=true){
   }
 }
 
-document.querySelectorAll('.parts-dock button').forEach(btn=>btn.addEventListener('click',()=>selectPart(btn.dataset.part,true)));
+document.querySelectorAll('.parts-dock button').forEach(btn=>{
+  btn.addEventListener('click',()=>selectPart(btn.dataset.part,true));
+});
 document.querySelector('#close-panel').addEventListener('click',()=>panel.classList.remove('open'));
 document.querySelector('#reset-camera').addEventListener('click',()=>{
-  cameraGoal=new THREE.Vector3(...defaultCamera);targetGoal=new THREE.Vector3(0,2.4,0);
+  cameraGoal=new THREE.Vector3(...defaultCamera);
+  targetGoal=new THREE.Vector3(0,2.4,0);
 });
-controls.addEventListener('start',()=>{cameraGoal=null;targetGoal=null});
+controls.addEventListener('start',()=>{
+  cameraGoal=null;
+  targetGoal=null;
+});
 
 function animate(t){
   requestAnimationFrame(animate);
   const time=t*.001;
   for(let i=0;i<seaPos.count;i++){
     const [x,z]=seaBase[i];
-    const y=Math.sin(x*.12+time*.72)*.17+Math.sin(z*.16-time*.56)*.12+Math.sin((x+z)*.07+time*.34)*.09;
+    const y=
+      Math.sin(x*.12+time*.72)*.17+
+      Math.sin(z*.16-time*.56)*.12+
+      Math.sin((x+z)*.07+time*.34)*.09;
     seaPos.setY(i,y);
   }
   seaPos.needsUpdate=true;
-  if(cameraGoal){camera.position.lerp(cameraGoal,.045);if(camera.position.distanceTo(cameraGoal)<.04)cameraGoal=null;}
-  if(targetGoal){controls.target.lerp(targetGoal,.06);if(controls.target.distanceTo(targetGoal)<.03)targetGoal=null;}
+
+  if(cameraGoal){
+    camera.position.lerp(cameraGoal,.045);
+    if(camera.position.distanceTo(cameraGoal)<.04) cameraGoal=null;
+  }
+  if(targetGoal){
+    controls.target.lerp(targetGoal,.06);
+    if(controls.target.distanceTo(targetGoal)<.03) targetGoal=null;
+  }
+
   ship.rotation.z=Math.sin(time*.55)*.008;
   ship.rotation.x=Math.sin(time*.38)*.004;
   controls.update();
