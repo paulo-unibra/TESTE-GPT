@@ -6,22 +6,28 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x07131f);
 scene.fog = new THREE.FogExp2(0x07131f, 0.016);
 
-const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 180);
-camera.position.set(27, 13, 29);
+const isMobile = matchMedia('(max-width: 700px)').matches;
+const defaultCamera = isMobile ? [34, 13, 36] : [27, 13, 29];
+const camera = new THREE.PerspectiveCamera(isMobile ? 52 : 42, innerWidth / innerHeight, 0.1, 180);
+camera.position.set(...defaultCamera);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, isMobile ? 1.5 : 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
+renderer.domElement.style.touchAction = 'none';
 container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.055;
+controls.enablePan = false;
+controls.rotateSpeed = isMobile ? 0.72 : 1;
+controls.zoomSpeed = isMobile ? 0.8 : 1;
 controls.minDistance = 12;
 controls.maxDistance = 58;
 controls.maxPolarAngle = Math.PI * 0.48;
@@ -292,23 +298,19 @@ soundingWeight.position.set(6.5,-3.62,2.62);ship.add(tag(soundingWeight,'soundin
 const frameDetail=new THREE.Mesh(new THREE.BoxGeometry(3.9,.18,.22),darkWood);
 frameDetail.position.set(-1.15,2.1,-2.45);frameDetail.rotation.y=.2;ship.add(tag(frameDetail,'frame'));
 
-// Decorative rope coils on deck
 for(const x of [3.5,6.0]){
   const coil=new THREE.Mesh(new THREE.TorusGeometry(.44,.055,8,28),ropeMat);coil.rotation.x=Math.PI/2;coil.position.set(x,1.02,1.25);ship.add(tag(coil,'rigging'));
 }
 
-// Sea
 const seaGeo=new THREE.PlaneGeometry(150,150,80,80);seaGeo.rotateX(-Math.PI/2);
 const seaMat=new THREE.MeshPhysicalMaterial({color:0x0b3850,roughness:.28,metalness:.12,transparent:true,opacity:.93,clearcoat:.3,side:THREE.DoubleSide});
 const sea=new THREE.Mesh(seaGeo,seaMat);sea.position.y=0;sea.receiveShadow=true;scene.add(sea);
 const seaPos=seaGeo.attributes.position;const seaBase=[];
 for(let i=0;i<seaPos.count;i++)seaBase.push([seaPos.getX(i),seaPos.getZ(i)]);
 
-// A faint glow on the horizon
 const horizon=new THREE.Mesh(new THREE.CircleGeometry(24,80),new THREE.MeshBasicMaterial({color:0x285270,transparent:true,opacity:.12,depthWrite:false}));
 horizon.position.set(-35,14,-55);scene.add(horizon);
 
-// Stars
 const starPos=[];
 for(let i=0;i<420;i++){
   const r=65+Math.random()*55;const theta=Math.random()*Math.PI*2;const phi=Math.random()*Math.PI*.42;
@@ -344,6 +346,7 @@ function getPartFromEvent(event){
 }
 
 renderer.domElement.addEventListener('pointermove',e=>{
+  if(e.pointerType === 'touch') return;
   const key=getPartFromEvent(e);
   if(key!==hovered){
     if(hovered && hovered!==selectedKey)meshHighlight(hovered,false);
@@ -369,18 +372,17 @@ function selectPart(key,focus=true){
   document.querySelector('#part-quote').textContent=p.quote;
   panel.classList.add('open');
   document.querySelectorAll('.parts-dock button').forEach(btn=>btn.classList.toggle('active',btn.dataset.part===key));
-  if(focus){cameraGoal=new THREE.Vector3(...p.camera);targetGoal=new THREE.Vector3(...p.target).add(new THREE.Vector3(0,1.75,0));}
+  if(focus){
+    const mobileBoost = isMobile ? 1.22 : 1;
+    cameraGoal=new THREE.Vector3(...p.camera).multiplyScalar(mobileBoost);
+    targetGoal=new THREE.Vector3(...p.target).add(new THREE.Vector3(0,1.75,0));
+  }
 }
 
 document.querySelectorAll('.parts-dock button').forEach(btn=>btn.addEventListener('click',()=>selectPart(btn.dataset.part,true)));
 document.querySelector('#close-panel').addEventListener('click',()=>panel.classList.remove('open'));
-document.querySelector('#start-explore').addEventListener('click',()=>{
-  document.querySelector('#intro-card').classList.add('hidden');
-  cameraGoal=new THREE.Vector3(24,9,22);targetGoal=new THREE.Vector3(0,3.0,0);
-  setTimeout(()=>selectPart('hull',false),320);
-});
 document.querySelector('#reset-camera').addEventListener('click',()=>{
-  cameraGoal=new THREE.Vector3(27,13,29);targetGoal=new THREE.Vector3(0,2.4,0);
+  cameraGoal=new THREE.Vector3(...defaultCamera);targetGoal=new THREE.Vector3(0,2.4,0);
 });
 controls.addEventListener('start',()=>{cameraGoal=null;targetGoal=null});
 
@@ -403,5 +405,10 @@ function animate(t){
 animate(0);
 
 addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  const mobileNow = innerWidth <= 700;
+  camera.aspect=innerWidth/innerHeight;
+  camera.fov=mobileNow ? 52 : 42;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,mobileNow ? 1.5 : 2));
 });
